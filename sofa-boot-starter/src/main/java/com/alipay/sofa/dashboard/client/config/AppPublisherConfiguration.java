@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.dashboard.client.config;
 
+import com.alipay.sofa.ark.exception.ArkRuntimeException;
 import com.alipay.sofa.ark.springboot2.endpoint.IntrospectBizEndpoint;
 import com.alipay.sofa.dashboard.client.ark.ArkBizLifecycleHandler;
 import com.alipay.sofa.dashboard.client.model.common.Application;
@@ -37,6 +38,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -135,7 +137,12 @@ public class AppPublisherConfiguration {
         if (isInstanceIpEmpty) {
             boolean isVirtualHostEmpty = StringUtils.isEmpty(properties.getVirtualHost());
             if (isVirtualHostEmpty) {
-                ip = NetworkAddressUtils.getLocalIP();
+                try {
+                    ip = InetAddress.getLocalHost().getHostAddress();
+                } catch (Throwable throwable) {
+                    throw new ArkRuntimeException(throwable);
+                }
+                //ip = NetworkAddressUtils.getLocalIP();
             } else {
                 ip = properties.getVirtualHost();
             }
